@@ -11,6 +11,14 @@
         "repo": "ThatXliner/gah"
       },
       "description": "Non-interactive hunk staging for AI agents — use instead of git add -p"
+    },
+    {
+      "name": "x-commit",
+      "source": {
+        "source": "github",
+        "repo": "ThatXliner/x-commit"
+      },
+      "description": "Commit skill — gitmoji + conventional commits, atomic commit enforcement, why-not-what messaging"
     }
   ]
 }
