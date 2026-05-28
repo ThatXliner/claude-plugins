@@ -24,7 +24,7 @@
       "name": "patchwork",
       "source": {
         "source": "github",
-        "path": "ThatXliner/patchwork-cli"
+        "repo": "ThatXliner/patchwork-cli"
       },
       "description": "AST-native sed — structural find/replace/delete/insert for code transformations"
     },
@@ -32,7 +32,7 @@
       "name": "open-itin",
       "source": {
         "source": "github",
-        "path": "ThatXliner/open-itin"
+        "repo": "ThatXliner/open-itin"
       },
       "description": "Generate travel itineraries in Open Itinerary format (.oitinerary.kdl)"
     }
