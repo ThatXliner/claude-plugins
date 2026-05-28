@@ -12,7 +12,6 @@ Marketplace index for my Claude Code plugins.
 
 ```bash
 /plugin marketplace add ThatXliner/claude-plugins
-/plugin install gah
 ```
 
 ## License
