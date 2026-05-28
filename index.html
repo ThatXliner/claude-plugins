@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Plugins | ThatXliner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --fg: #e0e0e0;
+      --cyan: #00ffcc;
+      --magenta: #ff00aa;
+      --dim: #4a4a4a;
+      --card-bg: #111111;
+      --border: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+
+    /* Noise texture */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      z-index: 999;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Header */
+    header {
+      padding: 4rem 0 2rem;
+            position: relative;
+    }
+
+    .ascii-art {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      line-height: 1.1;
+      color: var(--cyan);
+      white-space: pre;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+      text-shadow: 0 0 10px var(--cyan);
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .title-block {
+      opacity: 0;
+      animation: slideUp 0.6s ease 0.2s forwards;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h1 .cursor {
+      display: inline-block;
+      width: 0.7em;
+      height: 1em;
+      background: var(--cyan);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .subtitle {
+      color: var(--dim);
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .subtitle span {
+      color: var(--magenta);
+    }
+
+    .stats {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.8rem;
+      opacity: 0;
+      animation: slideUp 0.6s ease 0.4s forwards;
+      align-items: center;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-shadow: 0 0 20px var(--cyan);
+    }
+
+    .stat-label {
+      color: var(--dim);
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* Main content */
+    main {
+      padding: 4rem 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: slideUp 0.6s ease 0.6s forwards;
+    }
+
+    .section-header::before {
+      content: '>';
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .section-header h2 {
+      font-size: 1.2rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+    }
+
+    /* Plugin grid */
+    .plugins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .plugin-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: cardIn 0.5s ease forwards;
+      transition: all 0.3s ease;
+    }
+
+    .plugin-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--magenta));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .plugin-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .plugin-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.1);
+      transform: translateY(-2px);
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .plugin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .plugin-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .plugin-name::before {
+      content: '$';
+      color: var(--cyan);
+      font-weight: 400;
+    }
+
+    .plugin-source {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      background: var(--border);
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .plugin-description {
+      color: var(--dim);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .plugin-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 0.6rem 1.2rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 255, 204, 0.05);
+    }
+
+    .btn-primary {
+      background: var(--cyan);
+      color: var(--bg);
+      border-color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: transparent;
+      color: var(--cyan);
+    }
+
+    .btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Install command */
+    .install-command {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1px dashed var(--border);
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .install-command code {
+      color: var(--cyan);
+    }
+
+    .install-command button {
+      font-family: inherit;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+      background: transparent;
+      border: 1px solid var(--dim);
+      color: var(--dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .install-command button:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .install-command button.copied {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Footer */
+    footer {
+      padding: 3rem 0;
+            text-align: center;
+    }
+
+    .footer-content {
+      color: var(--dim);
+      font-size: 0.8rem;
+    }
+
+    .footer-content a {
+      color: var(--cyan);
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .footer-content a:hover {
+      opacity: 0.7;
+    }
+
+    .footer-ascii {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.5rem;
+      color: var(--border);
+      margin-top: 2rem;
+      white-space: pre;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 4rem;
+      color: var(--dim);
+    }
+
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    /* Error state */
+    .error {
+      text-align: center;
+      padding: 4rem;
+      color: var(--magenta);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .ascii-art {
+        font-size: 0.4rem;
+        overflow-x: auto;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .stats {
+        gap: 1rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      .plugins-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .stats {
+        align-self: flex-start;
+      }
+
+      .stat {
+        align-items: flex-start;
+      }
+    }
+
+    /* Glitch effect on hover */
+    .glitch {
+      position: relative;
+    }
+
+    .glitch:hover {
+      animation: glitch 0.3s ease;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <pre class="ascii-art">
+   _____ _                 _        ____  _             _
+  / ____| |               | |      |  _ \| |           (_)
+ | |    | | __ _ _   _  __| | ___  | |_) | |_   _  __ _ _ _ __  ___
+ | |    | |/ _` | | | |/ _` |/ _ \ |  __/| | | | |/ _` | | '_ \/ __|
+ | |____| | (_| | |_| | (_| |  __/ | |   | | |_| | (_| | | | | \__ \
+  \_____|_|\__,_|\__,_|\__,_|\___| |_|   |_|\__,_|\__, |_|_| |_|___/
+                                                  __/ |
+                                                 |___/
+      </pre>
+      <div class="header-content">
+        <div class="title-block">
+          <h1 class="glitch">plugins<span class="cursor"></span></h1>
+          <p class="subtitle">curated by <span>@ThatXliner</span></p>
+        </div>
+        <div class="add-marketplace" style="text-align: center;">
+          <span style="color: var(--dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;">Add marketplace</span>
+          <div class="install-command" style="margin-top: 0.25rem;">
+            <code>/plugin marketplace add ThatXliner/claude-plugins</code>
+            <button onclick="copyCommand(this, '/plugin marketplace add ThatXliner/claude-plugins')">copy</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-value" id="plugin-count">-</span>
+            <span class="stat-label">plugins</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="section-header">
+        <h2>Available Plugins</h2>
+      </div>
+
+      <div class="plugins-grid" id="plugins-grid">
+        <div class="loading">Loading plugins</div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <p>Built for <a href="https://claude.ai/code" target="_blank">Claude Code</a></p>
+        <p style="margin-top: 0.5rem;">
+          <a href="https://github.com/ThatXliner/claude-plugins" target="_blank">View on GitHub</a>
+        </p>
+      </div>
+          </footer>
+  </div>
+
+  <script>
+    async function loadPlugins() {
+      const grid = document.getElementById('plugins-grid');
+      const countEl = document.getElementById('plugin-count');
+
+      try {
+        const response = await fetch('marketplace.json');
+        if (!response.ok) throw new Error('Failed to load');
+
+        const data = await response.json();
+        const plugins = data.plugins || [];
+
+        countEl.textContent = plugins.length;
+
+        if (plugins.length === 0) {
+          grid.innerHTML = '<div class="error">No plugins found</div>';
+          return;
+        }
+
+        grid.innerHTML = plugins.map((plugin, i) => {
+          const repoUrl = plugin.source?.source === 'github'
+            ? `https://github.com/${plugin.source.repo}`
+            : '#';
+
+          const installCmd = plugin.source?.source === 'github'
+            ? `/plugin install ${plugin.source.repo}`
+            : `/plugin install ${plugin.name}`;
+
+          return `
+            <article class="plugin-card" style="animation-delay: ${0.1 * i}s">
+              <div class="plugin-header">
+                <h3 class="plugin-name">${escapeHtml(plugin.name)}</h3>
+                <span class="plugin-source">${plugin.source?.source || 'local'}</span>
+              </div>
+              <p class="plugin-description">${escapeHtml(plugin.description || 'No description')}</p>
+              <div class="plugin-actions">
+                <a href="${repoUrl}" target="_blank" class="btn">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                  </svg>
+                  GitHub
+                </a>
+              </div>
+              <div class="install-command">
+                <code>${escapeHtml(installCmd)}</code>
+                <button onclick="copyCommand(this, '${escapeHtml(installCmd)}')">copy</button>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+      } catch (err) {
+        grid.innerHTML = '<div class="error">Failed to load plugins</div>';
+        console.error(err);
+      }
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function copyCommand(btn, cmd) {
+      navigator.clipboard.writeText(cmd).then(() => {
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    loadPlugins();
+  </script>
+</body>
+</html>
