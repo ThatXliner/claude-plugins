@@ -24,7 +24,7 @@
       "name": "patchwork",
       "source": {
         "source": "github",
-        "path": "ThatXliner/patchwork"
+        "path": "ThatXliner/patchwork-cli"
       },
       "description": "AST-native sed — structural find/replace/delete/insert for code transformations"
     },
