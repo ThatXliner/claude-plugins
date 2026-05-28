@@ -19,6 +19,14 @@
         "repo": "ThatXliner/x-commit"
       },
       "description": "Commit skill — gitmoji + conventional commits, atomic commit enforcement, why-not-what messaging"
+    },
+    {
+      "name": "patchwork",
+      "source": {
+        "source": "local",
+        "path": "patchwork"
+      },
+      "description": "AST-native sed — structural find/replace/delete/insert for code transformations"
     }
   ]
 }
