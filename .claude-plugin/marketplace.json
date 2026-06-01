@@ -7,32 +7,32 @@
     {
       "name": "gah",
       "source": {
-        "source": "github",
-        "repo": "ThatXliner/gah"
+        "source": "git",
+        "url": "https://github.com/ThatXliner/gah.git"
       },
       "description": "Non-interactive hunk staging for AI agents — use instead of git add -p"
     },
     {
       "name": "x-commit",
       "source": {
-        "source": "github",
-        "repo": "ThatXliner/x-commit"
+        "source": "git",
+        "url": "https://github.com/ThatXliner/x-commit.git"
       },
       "description": "Commit skill — gitmoji + conventional commits, atomic commit enforcement, why-not-what messaging"
     },
     {
       "name": "patchwork",
       "source": {
-        "source": "github",
-        "repo": "ThatXliner/patchwork-cli"
+        "source": "git",
+        "url": "https://github.com/ThatXliner/patchwork-cli.git"
       },
       "description": "AST-native sed — structural find/replace/delete/insert for code transformations"
     },
     {
       "name": "open-itin",
       "source": {
-        "source": "github",
-        "repo": "ThatXliner/open-itin"
+        "source": "git",
+        "url": "https://github.com/ThatXliner/open-itin.git"
       },
       "description": "Generate travel itineraries in Open Itinerary format (.oitinerary.kdl)"
     }
