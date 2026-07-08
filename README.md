@@ -1,8 +1,5 @@
 # ThatXliner's Claude Code Plugins
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Crates.io](https://img.shields.io/crates/v/patchwork-cli.svg)](https://crates.io/crates/patchwork-cli)
-
 Marketplace index for my Claude Code plugins.
 
 ## Available Plugins
